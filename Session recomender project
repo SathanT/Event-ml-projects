@@ -1,0 +1,28 @@
+# session_recommender.py
+
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import StandardScaler
+
+# Sample dataset
+data = {
+    'user_id': [1, 1, 2, 2, 3, 4, 4, 5],
+    'session_id': ['S1', 'S2', 'S2', 'S3', 'S3', 'S1', 'S3', 'S2'],
+    'rating': [5, 4, 5, 3, 4, 2, 5, 4]
+}
+df = pd.DataFrame(data)
+
+# Create pivot table
+pivot = df.pivot_table(index='user_id', columns='session_id', values='rating').fillna(0)
+
+# Similarity between sessions
+session_similarity = cosine_similarity(pivot.T)
+similarity_df = pd.DataFrame(session_similarity, index=pivot.columns, columns=pivot.columns)
+
+# Recommend sessions similar to S1
+def recommend_sessions(session_id, top_n=2):
+    print(f"\nTop recommendations for session: {session_id}")
+    recs = similarity_df[session_id].sort_values(ascending=False)[1:top_n+1]
+    print(recs)
+
+recommend_sessions('S1')
